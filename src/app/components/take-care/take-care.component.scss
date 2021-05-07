@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css?family=Economica:700&display=swap');
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: 'Economica', sans-serif;
+	font-size: 1.5rem;
+	text-transform: uppercase;
+	min-height: 100vh;
+	background-color: black;
+	color: red;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.wrapper {
+	width: 546px;
+	height: 500px;
+	position: relative;
+}
+
+.line1 .word,
+.line2 .char {
+	offset-path: path('M.5 159.7C-.9 341.1 228.4 500 273.2 500.5S546.1 350.1 546 159.7c0-75.9-32.9-131.6-97.2-149.8-116.5-33.1-153.6 48.4-175.6 47.8-24.2-.6-66.9-80.5-172.7-50C33.1 27.1 1.1 82 .5 159.7z');
+	offset-position: top;
+	offset-anchor: center left;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.line1 .word {
+	--i: calc(var(--word-total) - var(--word-index));
+	offset-distance: calc(var(--i) * 4.2rem + 37rem);
+	offset-rotate: auto 90deg;
+	opacity: 0;
+	animation: words 1500ms calc(var(--word-index) * 320ms + 2300ms) cubic-bezier(.43,.13,.29,.69) forwards;
+}
+
+.line2 .char {
+	--i: calc(var(--char-total) - var(--char-index));
+	offset-distance: calc(var(--char-index) * 1% + 64rem);
+	opacity: 0;
+	animation: dots 200ms calc(var(--i) * 30ms) forwards;
+}
+
+@keyframes dots {
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes words {
+	100% {
+		opacity: 1;
+		offset-distance: calc(var(--i) * 4.2rem + 36rem);
+	}
+}

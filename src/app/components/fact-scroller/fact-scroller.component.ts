@@ -15,11 +15,21 @@ import { Post, Media } from 'src/app/model/post.model';
 })
 export class FactScrollerComponent {
   // dataSource: FactsDataSource;
-  dataSource: ImageDataSource;
+  dataSource: PopularImageDataSource | SearchImageDataSource;
+  thereAreImages: boolean = false;
+
+  obser: Observable<any> = new Observable<any>();
+  collView: CollectionViewer = {viewChange: this.obser};
   
   constructor(private factService: FactService, private imageService: ImageService) {
     // this.dataSource = new FactsDataSource(factService);
-    this.dataSource = new ImageDataSource(imageService);
+    this.dataSource = new PopularImageDataSource(imageService);
+    this.init();
+    this.imageService.eventEmit.subscribe((n) => this.init() )
+  }
+  init() {
+    this.dataSource = new PopularImageDataSource(this.imageService);
+    this.dataSource.dataStream.subscribe((nex:any) => {const self = this; setTimeout(() => self.thereAreImages = nex.length > 0, 500) });
   }
 }
 
@@ -81,20 +91,27 @@ export class FactsDataSource extends DataSource<Fact | undefined> {
 
 }
 
-export class ImageDataSource extends DataSource<Media> {
+export class PopularImageDataSource extends DataSource<Media> {
   private cachedFacts: Media[] = Array<Media>();
-  private dataStream = new BehaviorSubject<Media[]>(this.cachedFacts);
+  public dataStream = new BehaviorSubject<Media[]>(this.cachedFacts);
   private subscription = new Subscription();
   private pageSize = 10;
   private lastPage = 0;
   private innerHeight = window.innerHeight-100;
   private innerWidth = window.innerWidth-50;
+  
+  public get thereAreImages() : boolean {
+    return this.cachedFacts.length > 0;
+  }
 
   constructor(private imageService: ImageService) {
     super();
     this._fetchImagePage();
   }
 
+  public clear() {
+    this.cachedFacts = [];
+  }
   connect(collectionViewer: CollectionViewer): Observable<Media[] | ReadonlyArray<Media>> {
     this.subscription.add(collectionViewer.viewChange.subscribe(range => {
       const currentPage = this._getPageForIndex(range.end);
@@ -116,6 +133,79 @@ export class ImageDataSource extends DataSource<Media> {
   private _fetchImagePage(): void {
     for (let i = 0; i < this.pageSize; ++i) {
       this.imageService.getRandomImageList().subscribe(res => {
+        let list: any[] = res.data.children
+        .filter(c => !!c.data.preview && !!c.data.preview.images[0] && !!c.data.preview.images[0])
+        .map(d => { 
+          return {
+            author: d.data.author,
+            awards: d.data.all_awardings?.length || 0,
+            fullRes: d.data.preview.images[0].source.url.replace('&amp;', '&'),
+            image: d.data.preview.images[0],
+            name: d.data.name,
+            score: d.data.score,
+            subscribers: d.data.subreddit_subscribers,
+            thumbnail: d.data.thumbnail.replace('&amp;', '&'),
+            title: d.data.title,
+            thumb: d.data.preview.images[0].resolutions[0].url.replace('&amp;', '&'),
+            url: d.data.url.replace('&amp;', '&') //d.data.url_overridden_by_dest.replace('&amp;', '&')
+          }
+        });
+        list.forEach((m:Media) => this.cachedFacts.push(m));
+        this.dataStream.next(this.cachedFacts);
+      });
+    }
+  }
+
+  private _getPageForIndex(i: number): number {
+    return Math.floor(i / this.pageSize);
+  }
+
+}
+
+export class SearchImageDataSource extends DataSource<Media> {
+  private cachedFacts: Media[] = Array<Media>();
+  public dataStream = new BehaviorSubject<Media[]>(this.cachedFacts);
+  private subscription = new Subscription();
+  private pageSize = 10;
+  private lastPage = 0;
+  private innerHeight = window.innerHeight-100;
+  private innerWidth = window.innerWidth-50;
+  
+  public get thereAreImages() : boolean {
+    return this.cachedFacts.length > 0;
+  }
+  
+
+  constructor(public search: string, private imageService: ImageService) {
+    super();
+    this._fetchImagePage();
+  }
+
+  public clear() {
+    this.cachedFacts = [];
+    this.dataStream = new BehaviorSubject<Media[]>(this.cachedFacts);
+  }
+  connect(collectionViewer: CollectionViewer): Observable<Media[] | ReadonlyArray<Media>> {
+    this.subscription.add(collectionViewer.viewChange.subscribe(range => {
+      const currentPage = this._getPageForIndex(range.end);
+      if (currentPage && range) {
+        console.log(currentPage, this.lastPage);
+      }
+      if (currentPage > this.lastPage) {
+        this.lastPage = currentPage;
+        this._fetchImagePage();
+      }
+    }));
+    return this.dataStream;
+  }
+
+  disconnect(collectionViewer: CollectionViewer): void {
+    this.subscription.unsubscribe();
+  }
+
+  private _fetchImagePage(): void {
+    for (let i = 0; i < this.pageSize; ++i) {
+      this.imageService.getSearchedImageList(this.search).subscribe(res => {
         let list: any[] = res.data.children
         .filter(c => !!c.data.preview && !!c.data.preview.images[0] && !!c.data.preview.images[0])
         .map(d => { 

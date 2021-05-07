@@ -1,4 +1,6 @@
-<cdk-virtual-scroll-viewport id="fact-scroll-viewport" itemSize="30" class="fact-scroll-viewport" >
+<app-ghost *ngIf="!thereAreImages" style="height: 100vh; width: 100vw; z-index: 99999;"></app-ghost>
+
+<cdk-virtual-scroll-viewport *ngIf="thereAreImages" id="fact-scroll-viewport" itemSize="30" class="fact-scroll-viewport" >
   <div class="masonry">
     <div class="grid" *cdkVirtualFor="let fact of dataSource">
       <img src={{fact.thumbnail}}>

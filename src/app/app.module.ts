@@ -8,17 +8,17 @@ import { AppRoutingModule } from './app-routing.module';
 import { MaterialModule } from './material.module';
 import { AppComponent } from './components/main/app.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
-import { InfiniteGalleryComponent } from './components/infinite-gallery/infinite-gallery.component';
 import { FactScrollerComponent } from './components/fact-scroller/fact-scroller.component';
 import { TakeCareComponent } from './components/take-care/take-care.component';
+import { GhostComponent } from './components/ghost/ghost.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     SearchBarComponent,
-    InfiniteGalleryComponent,
     FactScrollerComponent,
-    TakeCareComponent
+    TakeCareComponent,
+    GhostComponent
   ],
   imports: [
     BrowserModule,

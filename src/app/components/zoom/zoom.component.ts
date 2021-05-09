@@ -14,12 +14,11 @@ export class ZoomComponent implements OnInit, OnDestroy {
     id: string = '';
     private sub: any;
     imagesToShow: any[];
-    interval: number = 5000;
-    proportion: number = 25;
-    slides: any = 5;
+    fact: any;
     
     constructor(private route: ActivatedRoute, private image: ImageService) {
         this.imagesToShow = [];
+        this.fact = null;
     }
     
     ngOnInit() {
@@ -27,6 +26,7 @@ export class ZoomComponent implements OnInit, OnDestroy {
             this.id = params['id']; // (+) converts string 'id' to a number
             // In a real app: dispatch action to load the details here.
             this.imagesToShow = this.image.cachedData.filter(c => c.data.id === this.id).map(i => { return {...i.data, image: i.data.url}});
+            this.fact = this.imagesToShow[0];
         });
     }
     

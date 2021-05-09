@@ -1,7 +1,18 @@
     <!-- <input type="radio" name="position" *ngFor="let slide of imagesToShow; let i = index" /> -->
 
-    <main id="carousel" style="width: 100vw; height: 100vh;">
-        <div class="item" *ngFor="let slide of imagesToShow; let i = index">
-            <img class="slide" src={{slide.url}} />
+<div *ngIf="fact" class="masonry full">
+    <div class="grid full">
+      <img class="full" src={{fact.thumbnail}}>
+      <div id={{fact.id}} class="grid__body full" [routerLink]="['/zoom', fact.id]">
+        <div class="relative">
+          <h1 class="grid__title">{{fact.title}}</h1>
+          <p class="grid__author">{{fact.author}}</p>
         </div>
-    </main>
+        <div class="mt-auto" >
+          <span class="grid__tag">
+            🏆 {{fact.awards}}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>

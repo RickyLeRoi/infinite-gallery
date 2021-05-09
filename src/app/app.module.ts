@@ -11,6 +11,10 @@ import { SearchBarComponent } from './components/search-bar/search-bar.component
 import { FactScrollerComponent } from './components/fact-scroller/fact-scroller.component';
 import { TakeCareComponent } from './components/take-care/take-care.component';
 import { GhostComponent } from './components/ghost/ghost.component';
+import { LoadingComponent } from './components/loading/loading.component';
+import { ZoomComponent } from './components/zoom/zoom.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { MatCarouselModule } from '@ngmodule/material-carousel';
 
 @NgModule({
   declarations: [
@@ -18,7 +22,9 @@ import { GhostComponent } from './components/ghost/ghost.component';
     SearchBarComponent,
     FactScrollerComponent,
     TakeCareComponent,
-    GhostComponent
+    GhostComponent,
+    LoadingComponent,
+    ZoomComponent
   ],
   imports: [
     BrowserModule,
@@ -27,6 +33,9 @@ import { GhostComponent } from './components/ghost/ghost.component';
     AppRoutingModule,
     HttpClientModule,
     ScrollingModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatCarouselModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

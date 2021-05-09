@@ -33,9 +33,7 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [
-              "src/app/components/take-care/splitting.js"
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {

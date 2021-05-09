@@ -1,6 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Data, Post } from '../model/post.model';
+import { EvObs } from '../model/event.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -8,12 +9,13 @@ import { Observable } from 'rxjs';
 })
 export class ImageService {
   keyword: string = 'cats';
-  eventEmit: EventEmitter<number> = new EventEmitter<number>(false);
+  cachedData: any[] = [];
+  eventEmit: EventEmitter<EvObs> = new EventEmitter<EvObs>();
   constructor(private http: HttpClient) { }
 
   changeKeyWord(value: string) {
     this.keyword = value || 'cats';
-    this.eventEmit.next(Math.random());
+    this.eventEmit.next({finish: false, isLoading: true});
   }
   getRandomImage(): Observable<Post>|undefined {
     let resp = this.getRandomImageList();
@@ -25,7 +27,19 @@ export class ImageService {
     return resp;
   }
   getSearchedImageList(search: string): Observable<Data> {
-    let resp = this.http.get<Data>(`https://www.reddit.com/r/${search}/top.json`);
+    let resp = new Observable<Data>();
+    this.cachedData = [];
+    resp = this.http.get<Data>(`https://www.reddit.com/r/${search}/top.json`);
+    resp.subscribe( 
+      (n) => {
+        // console.log(n);
+        this.cachedData = this.cachedData.concat(n.data.children);
+      },
+      (e) => {
+        // console.log(e);
+      },
+      console.log
+    );
     return resp;
   }
 }

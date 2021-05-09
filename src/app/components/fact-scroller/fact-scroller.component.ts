@@ -3,9 +3,11 @@ import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
 import { Fact } from '../../model/fact.model';
+import { Post, Media } from 'src/app/model/post.model';
+import { EvObs } from 'src/app/model/event.model';
 import { FactService } from '../../services/fact.service';
 import { ImageService } from '../../services/image.service';
-import { Post, Media } from 'src/app/model/post.model';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -17,19 +19,49 @@ export class FactScrollerComponent {
   // dataSource: FactsDataSource;
   dataSource: PopularImageDataSource | SearchImageDataSource;
   thereAreImages: boolean = false;
+  loading: boolean = true;
 
   obser: Observable<any> = new Observable<any>();
   collView: CollectionViewer = {viewChange: this.obser};
+
+  tries: number = 0;
   
-  constructor(private factService: FactService, private imageService: ImageService) {
+  constructor(private factService: FactService, private imageService: ImageService, private router: Router) {
     // this.dataSource = new FactsDataSource(factService);
-    this.dataSource = new PopularImageDataSource(imageService);
+    this.dataSource = new SearchImageDataSource(this.imageService.keyword, this.imageService);
     this.init();
-    this.imageService.eventEmit.subscribe((n) => this.init() )
+    this.imageService.eventEmit.subscribe((n:EvObs) => {
+      // console.log('loading: '+n.isLoading, 'finish: '+n.finish);
+      this.loading = true;
+        this.init();
+    })
   }
+  // openImage() {
+  //   const ev = event as MouseEvent;
+  //   const target = ev.target as HTMLElement;
+  //   console.log(target.id);
+  //   const id: string | null = target.id;
+  //   this.router.navigate(['/zoom', id]);
+  //   // this.router.navigateByUrl('zoom/'+id);
+  // }
   init() {
-    this.dataSource = new PopularImageDataSource(this.imageService);
-    this.dataSource.dataStream.subscribe((nex:any) => {const self = this; setTimeout(() => self.thereAreImages = nex.length > 0, 500) });
+    this.loading = true;
+    const self = this;
+    this.dataSource = new SearchImageDataSource(this.imageService.keyword, this.imageService);
+    var timeout: any = null;
+    this.dataSource.dataStream.subscribe( (nex:any) => {
+      // console.log('loaded images: '+nex.length);
+      self.thereAreImages = nex.length > 0;
+      self.tries++;
+      timeout = setTimeout(function () {
+        self.loading = false;
+      }, 16000);
+      if (self.tries > 9) {
+        clearTimeout(timeout);
+        self.loading = false;
+        self.tries = 0;
+      }
+    });
   }
 }
 
@@ -107,6 +139,7 @@ export class PopularImageDataSource extends DataSource<Media> {
   constructor(private imageService: ImageService) {
     super();
     this._fetchImagePage();
+    this.clear();
   }
 
   public clear() {
@@ -116,7 +149,7 @@ export class PopularImageDataSource extends DataSource<Media> {
     this.subscription.add(collectionViewer.viewChange.subscribe(range => {
       const currentPage = this._getPageForIndex(range.end);
       if (currentPage && range) {
-        console.log(currentPage, this.lastPage);
+        // console.log(currentPage, this.lastPage);
       }
       if (currentPage > this.lastPage) {
         this.lastPage = currentPage;
@@ -189,7 +222,7 @@ export class SearchImageDataSource extends DataSource<Media> {
     this.subscription.add(collectionViewer.viewChange.subscribe(range => {
       const currentPage = this._getPageForIndex(range.end);
       if (currentPage && range) {
-        console.log(currentPage, this.lastPage);
+        // console.log(currentPage, this.lastPage);
       }
       if (currentPage > this.lastPage) {
         this.lastPage = currentPage;
@@ -213,6 +246,7 @@ export class SearchImageDataSource extends DataSource<Media> {
             author: d.data.author,
             awards: d.data.all_awardings?.length || 0,
             fullRes: d.data.preview.images[0].source.url.replace('&amp;', '&'),
+            id: d.data.id,
             image: d.data.preview.images[0],
             name: d.data.name,
             score: d.data.score,

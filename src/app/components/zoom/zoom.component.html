@@ -1,0 +1,7 @@
+    <!-- <input type="radio" name="position" *ngFor="let slide of imagesToShow; let i = index" /> -->
+
+    <main id="carousel" style="width: 100vw; height: 100vh;">
+        <div class="item" *ngFor="let slide of imagesToShow; let i = index">
+            <img class="slide" src={{slide.url}} />
+        </div>
+    </main>

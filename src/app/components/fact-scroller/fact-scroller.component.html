@@ -1,18 +1,19 @@
-<app-ghost *ngIf="!thereAreImages" style="height: 100vh; width: 100vw; z-index: 99999;"></app-ghost>
+<app-loading *ngIf="loading"></app-loading>
 
-<cdk-virtual-scroll-viewport *ngIf="thereAreImages" id="fact-scroll-viewport" itemSize="30" class="fact-scroll-viewport" >
+<app-ghost *ngIf="!loading && !thereAreImages" style="height: 100vh; width: 100vw;"></app-ghost>
+
+<cdk-virtual-scroll-viewport *ngIf="!loading && thereAreImages" id="fact-scroll-viewport" itemSize="150" class="fact-scroll-viewport" >
   <div class="masonry">
     <div class="grid" *cdkVirtualFor="let fact of dataSource">
       <img src={{fact.thumbnail}}>
-      <div class="grid__body">
+      <div id={{fact.id}} class="grid__body" [routerLink]="['/zoom', fact.id]">
         <div class="relative">
           <h1 class="grid__title">{{fact.title}}</h1>
           <p class="grid__author">{{fact.author}}</p>
         </div>
         <div class="mt-auto" >
           <span class="grid__tag">
-            🏆
-            {{fact.awards}}
+            🏆 {{fact.awards}}
           </span>
         </div>
       </div>

@@ -1,19 +1,21 @@
 import {Component, OnInit} from '@angular/core';
-// import * as Splitting from './splitting.js';
+
+declare var Splitting: any;
 
 @Component({
     selector: 'app-take-care',
     templateUrl: 'take-care.component.html',
     styleUrls: ['take-care.component.scss'],
 })
-export class TakeCareComponent implements OnInit {
+export class TakeCareComponent {
     message = "Riccardo Giordano. Take care of yourself"
 
-    ngOnInit() {
-        // setTimeout(() => 
-        //     Splitting({
-        //         whitespace: false
-        //     }), 1000);
+    constructor() {
+        // document.addEventListener("load", function() {
+        //     var demo2 = Splitting({
+        //        whitespace: false
+        //     });
+        // });
     }
     
 }
